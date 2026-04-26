@@ -90,6 +90,7 @@ jobs:
           MYSQL_USER: root
           MYSQL_PASSWORD: admin
           MYSQL_DB: sakila
+          PYTHONPATH: /home/runner/work/spring26_sakila_app/spring26_sakila_app
         run: pytest tests/ -v
 
   build:
