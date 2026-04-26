@@ -15,6 +15,9 @@ on:
 env:
   IMAGE_NAME: sakila-app
 
+permissions:
+  contents: write
+
 jobs:
   deploy-staging:
     name: Deploy to Staging
@@ -75,18 +78,13 @@ jobs:
           echo "Status: SUCCESS"
 
       - name: Create GitHub Release
-        uses: actions/create-release@v1
+        run: |
+          gh release create "v${{ github.run_number }}" \
+            --title "Release v${{ github.run_number }}" \
+            --notes "Production Release - Commit ${{ github.sha }} by ${{ github.actor }}" \
+            --target main
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: v${{ github.run_number }}
-          release_name: Release v${{ github.run_number }}
-          body: |
-            Production Release
-            Commit: ${{ github.sha }}
-            Actor: ${{ github.actor }}
-          draft: false
-          prerelease: false
 
       - name: Slack notification
         run: echo "Slack notification - Deployment to production successful"
