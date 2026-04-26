@@ -16,12 +16,10 @@ env:
   IMAGE_NAME: sakila-app
 
 jobs:
-
   deploy-staging:
     name: Deploy to Staging
     runs-on: ubuntu-latest
     environment: staging
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -35,14 +33,12 @@ jobs:
 
       - name: Build staging Docker image
         run: |
-          docker build -t ${{ env.IMAGE_NAME }}:staging-${{ github.sha }} .
-          echo "Image built: ${{ env.IMAGE_NAME }}:staging-${{ github.sha }}"
+          docker build -t ${{ env.IMAGE_NAME }}:staging .
+          echo "Image built successfully"
 
       - name: Simulate staging deployment
         run: |
           echo "Starting staging deployment..."
-          echo "Image: ${{ env.IMAGE_NAME }}:staging-${{ github.sha }}"
-          echo "Environment: staging"
           echo "Status: SUCCESS"
 
       - name: Write Job Summary
@@ -50,23 +46,19 @@ jobs:
           echo "## Staging Deployment Summary" >> $GITHUB_STEP_SUMMARY
           echo "| Field | Value |" >> $GITHUB_STEP_SUMMARY
           echo "|-------|-------|" >> $GITHUB_STEP_SUMMARY
-          echo "| **Status** | ✅ Success |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Status** | Success |" >> $GITHUB_STEP_SUMMARY
           echo "| **Environment** | Staging |" >> $GITHUB_STEP_SUMMARY
-          echo "| **Image** | ${{ env.IMAGE_NAME }}:staging-${{ github.sha }} |" >> $GITHUB_STEP_SUMMARY
           echo "| **Branch** | ${{ github.ref }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| **Commit** | ${{ github.sha }} |" >> $GITHUB_STEP_SUMMARY
           echo "| **Actor** | ${{ github.actor }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| **Timestamp** | $(date -u) |" >> $GITHUB_STEP_SUMMARY
 
       - name: Slack notification
-        run: echo "Slack notification: Deployment to staging successful"
+        run: echo "Slack notification - Deployment to staging successful"
 
   deploy-production:
     name: Deploy to Production
     runs-on: ubuntu-latest
     needs: deploy-staging
     environment: production
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -80,8 +72,6 @@ jobs:
       - name: Simulate production deployment
         run: |
           echo "Starting production deployment..."
-          echo "Image: ${{ env.IMAGE_NAME }}:prod-${{ github.sha }}"
-          echo "Environment: production"
           echo "Status: SUCCESS"
 
       - name: Create GitHub Release
@@ -89,16 +79,14 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: v${{ github.run_number }}-${{ github.sha }}
+          tag_name: v${{ github.run_number }}
           release_name: Release v${{ github.run_number }}
           body: |
-            ## Production Release
-            - **Commit:** ${{ github.sha }}
-            - **Branch:** ${{ github.ref }}
-            - **Actor:** ${{ github.actor }}
-            - **Date:** ${{ github.event.head_commit.timestamp }}
+            Production Release
+            Commit: ${{ github.sha }}
+            Actor: ${{ github.actor }}
           draft: false
           prerelease: false
 
       - name: Slack notification
-        run: echo "Slack notification: Deployment to production successful"
+        run: echo "Slack notification - Deployment to production successful"
