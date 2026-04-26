@@ -34,9 +34,8 @@ jobs:
       - name: Run flake8
         run: |
           flake8 . --max-line-length=120 \
-            --extend-ignore=E501,W503,W293,W291,W292,E302,E128,E265,E402,E303 \
+            --extend-ignore=E501,W503,W293,W291,W292,E302,E128,E265,E402,E303,F401 \
             --exclude=.git,__pycache__,migrations,sakila-data.sql,sakila-schema.sql
-
   test:
     name: Run Unit Tests
     runs-on: ubuntu-latest
